@@ -20,13 +20,16 @@ namespace ESS
 
         DataSet dsSchema = new DataSet();
         DataSet dsData = new DataSet();
-        private void FormWeights_Load(object sender, EventArgs e)
+
+
+        internal override void Init()
         {
+            dsSchema = new DataSet();
+            dsData = new DataSet();
             dsSchema.ReadXml(mainForm.essSchemaPath);
             dsData.ReadXmlSchema(mainForm.essDataPath);
 
-            dataGridView1.DataSource = dsData;
-            dataGridView1.DataMember = mainForm.essDataTableName;
+            dataGridView1.Columns.Clear();
 
             DataTable scoreCalculation = new DataTable();
             scoreCalculation.Columns.Add("weightsName", Type.GetType("System.String"));
@@ -47,39 +50,49 @@ namespace ESS
             comboboxColumn.ValueMember = "weightsValue";
             comboboxColumn.HeaderText = headerName;
 
+            //dataGridView1.DataSource = dsData;
+
             dataGridView1.DataSource = dsData;
+            dataGridView1.DataMember = MainForm.essDataTableName;
+
 
             //排除非計算項
-            for (int i = dsData.Tables[0].Columns.Count - 1; i >= 0; i--)
+            for (int i = dsData.Tables[MainForm.essDataTableName].Columns.Count - 1; i >= 0; i--)
             {
-                if ((string)dsSchema.Tables[0].Rows[i][1] == "值高較優")
+                if ((string)dsSchema.Tables[MainForm.essSchemaTableName].Rows[i][1] == "值高較優")
                 {
                     DataGridViewComboBoxColumn curComboCol = comboboxColumn.Clone() as DataGridViewComboBoxColumn;
-                    curComboCol.HeaderText = dataGridView1.Columns[i].HeaderText;
+                    //curComboCol.HeaderText = dataGridView1.Columns[i].HeaderText;
+                    curComboCol.HeaderText = dsData.Tables[MainForm.essDataTableName].Columns[i].ColumnName;
                     dataGridView1.Columns.Insert(i, curComboCol);
                     dataGridView1.Columns.RemoveAt(i + 1);
                 }
-                else if ((string)dsSchema.Tables[0].Rows[i][1] == "值低較優")
+                else if ((string)dsSchema.Tables[MainForm.essSchemaTableName].Rows[i][1] == "值低較優")
                 {
                     DataGridViewComboBoxColumn curComboCol = comboboxColumn.Clone() as DataGridViewComboBoxColumn;
-                    curComboCol.HeaderText = dataGridView1.Columns[i].HeaderText;
+                    //curComboCol.HeaderText = dataGridView1.Columns[i].HeaderText;
+                    curComboCol.HeaderText = dsData.Tables[MainForm.essDataTableName].Columns[i].ColumnName;
                     dataGridView1.Columns.Insert(i, curComboCol);
                     dataGridView1.Columns.RemoveAt(i + 1);
                 }
                 else
                 {
-                    dsData.Tables[0].Columns.RemoveAt(i);
+                    dsData.Tables[MainForm.essDataTableName].Columns.RemoveAt(i);
                 }
             }
 
 
-            //補上評價者名稱
-            DataGridViewTextBoxColumn dgvColTemp = new DataGridViewTextBoxColumn();
-            dgvColTemp.HeaderText = "評價者";
-            dataGridView1.Columns.Insert(0, dgvColTemp);
-            
+
 
             dataGridView1.DataSource = null;
+
+            if (dataGridView1.Columns.Count > 0 && dataGridView1.Columns[0].HeaderText != "評價者")
+            {
+                //補上評價者名稱
+                DataGridViewTextBoxColumn dgvColTemp = new DataGridViewTextBoxColumn();
+                dgvColTemp.HeaderText = "評價者";
+                dataGridView1.Columns.Insert(0, dgvColTemp);
+            }
 
             //新增預設資料
             int DefDataCount = 5;
@@ -107,6 +120,11 @@ namespace ESS
             dataGridView1.EditMode = DataGridViewEditMode.EditOnEnter; //快速編輯
         }
 
+        private void FormWeights_Load(object sender, EventArgs e)
+        {
+
+        }
+
         private DataGridViewComboBoxColumn CreateComboBoxColumn(string HeaderText)
         {
             DataGridViewComboBoxColumn column =
@@ -127,12 +145,9 @@ namespace ESS
         /// <param name="e"></param>
         private void button1_Click(object sender, EventArgs e)
         {
-            //mainForm.fCompare.ds = dsData.Copy();
-            mainForm.fCompare.FormCompare_Init();
+            ChangeForm(mainForm.fCompare);
             List<Weights> weightsList = mainForm.fCompare.CalculateWeights(dataGridView1);
             mainForm.fCompare.CalculateScoreAndShow(weightsList, ref mainForm.fCompare.dataGridView2);
-
-            ChangeForm(mainForm.fCompare);
         }
 
 

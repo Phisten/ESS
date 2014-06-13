@@ -79,7 +79,6 @@
       <DependentUpon>FormDataEdit.cs</DependentUpon>
     </Compile>
     <Compile Include="Motorcycle_old.cs" />
-    <Compile Include="Phisten.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="ComplexForm.resx">
@@ -124,9 +123,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="essData.xml" />
-    <Content Include="essSchema.xml" />
-    <Content Include="SmpFile\essDataOpt.xml" />
+    <Content Include="SmpFile\essData.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

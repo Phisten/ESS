@@ -32,7 +32,7 @@ namespace ESS
 
 
         DataSet ds1;
-        internal void Init()
+        internal override void Init()
         {
             //load dgv1
             button2_Click(null, null);
@@ -76,18 +76,32 @@ namespace ESS
             dataGridView1.DataMember = "Motorcycle";
 
             mainForm.DataGridViewReSize(ref dataGridView1);
+            dataGridView1.EditMode = DataGridViewEditMode.EditOnEnter;
         }
 
-
+        /// <summary>
+        /// 儲存變更
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void button1_Click(object sender, EventArgs e)
         {
-            ds1.WriteXml(mainForm.essDataPath, XmlWriteMode.IgnoreSchema);
-            this.Init();
+            if (mainForm.NewEssDataPath())
+            {
+                hasEdited = false;
+                ds1.WriteXml(mainForm.essDataPath);
+                this.Init();
+            }
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
             ChangeForm(mainForm);
+        }
+
+        private void dataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            hasEdited = true;
         }
 
     }

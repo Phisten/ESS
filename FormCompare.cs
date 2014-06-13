@@ -26,7 +26,7 @@ namespace ESS
 
 
         }
-        public void FormCompare_Init()
+        internal override void Init()
         {
             dsTempData = new DataSet();
             dsData = new DataSet();
@@ -35,16 +35,20 @@ namespace ESS
             dsData.ReadXml(mainForm.essDataPath);
             dsSchema.ReadXml(mainForm.essSchemaPath);
 
+            dataGridView1.Columns.Clear();
             dataGridView1.DataSource = dsTempData;
-            dataGridView1.DataMember = mainForm.essDataTableName;
+            dataGridView1.DataMember = MainForm.essDataTableName;
 
+            dataGridView2.Columns.Clear();
             dataGridView2.DataSource = dsData;
-            dataGridView2.DataMember = mainForm.essDataTableName;
+            dataGridView2.DataMember = MainForm.essDataTableName;
+
 
             mainForm.DataGridViewReSize(ref dataGridView1);
             mainForm.DataGridViweOnlyShowData(ref dataGridView1);
             mainForm.DataGridViewReSize(ref dataGridView2);
             mainForm.DataGridViweOnlyShowData(ref dataGridView2);
+
         }
 
         /// <summary>
@@ -54,9 +58,9 @@ namespace ESS
         internal List<Weights> CalculateWeights(DataGridView srcDgv)
         {
             //排除非計算項
-            for (int i = dsTempData.Tables[0].Columns.Count - 1; i >= 0; i--)
+            for (int i = dsTempData.Tables[MainForm.essDataTableName].Columns.Count - 1; i >= 0; i--)
             {
-                string curCalType = (string)dsSchema.Tables[0].Rows[i][1];
+                string curCalType = (string)dsSchema.Tables[MainForm.essSchemaTableName].Rows[i][1];
                 if (curCalType == "值高較優" || curCalType == "值低較優")
                 {
                     dataGridView1.Columns.Insert(i, new DataGridViewTextBoxColumn());
@@ -65,7 +69,7 @@ namespace ESS
                 }
                 else
                 {
-                    dsTempData.Tables[0].Columns.RemoveAt(i);
+                    dsTempData.Tables[MainForm.essDataTableName].Columns.RemoveAt(i);
                 }
             }
 
@@ -129,22 +133,27 @@ namespace ESS
             return NormalWeights.Select<double, Weights>(x => (Weights)((int)(x * 1000))).ToList<Weights>();
         }
 
+        /// <summary>
+        /// 取出可計算參數,輸出為二維double List
+        /// </summary>
+        /// <param name="srcDgv"></param>
+        /// <returns></returns>
         internal List<List<double>> GetCalculableParam(DataGridView srcDgv)
         {
             List<List<double>> CalculableParamList = new List<List<double>>();
 
             dsTempData = new DataSet();
             dsTempData.ReadXml(mainForm.essDataPath);
-            DataTable dt = dsTempData.Tables[0];
+            DataTable dt = dsTempData.Tables[MainForm.essDataTableName];
 
             //排除非計算項
             for (int i = dt.Columns.Count - 1; i >= 0; i--)
             {
-                if ((string)dsSchema.Tables[0].Rows[i][1] == "值高較優")
+                if ((string)dsSchema.Tables[MainForm.essSchemaTableName].Rows[i][1] == "值高較優")
                 {
 
                 }
-                else if ((string)dsSchema.Tables[0].Rows[i][1] == "值低較優")
+                else if ((string)dsSchema.Tables[MainForm.essSchemaTableName].Rows[i][1] == "值低較優")
                 {
                 }
                 else
@@ -168,10 +177,10 @@ namespace ESS
             dsSchema.ReadXml(mainForm.essSchemaPath);
 
             //判斷該參數索引是否可計算
-            Func<int, bool> Calculable = i => ((string)dsSchema.Tables[0].Rows[i][1] == "值高較優" || (string)dsSchema.Tables[0].Rows[i][1] == "值低較優");
+            Func<int, bool> Calculable = i => ((string)dsSchema.Tables[MainForm.essSchemaTableName].Rows[i][1] == "值高較優" || (string)dsSchema.Tables[MainForm.essSchemaTableName].Rows[i][1] == "值低較優");
 
             DataSet curDs = srcDgv.DataSource as DataSet;
-            DataTable curTb = curDs.Tables[0];
+            DataTable curTb = curDs.Tables[MainForm.essDataTableName];
             int paramIndex = 0;
 
             //各列機車參數的分數總合

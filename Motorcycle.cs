@@ -57,13 +57,13 @@ namespace ESS
             List<int> ParamTypeList = new List<int>();
 
             //排除非計算項
-            for (int i = 0; i < dsSchema.Tables[0].Rows.Count; i++)
+            for (int i = 0; i < dsSchema.Tables[MainForm.essSchemaTableName].Rows.Count; i++)
             {
-                if ((string)dsSchema.Tables[0].Rows[i][1] == "值高較優")
+                if ((string)dsSchema.Tables[MainForm.essSchemaTableName].Rows[i][1] == "值高較優")
                 {
                     ParamTypeList.Add(1);
                 }
-                else if ((string)dsSchema.Tables[0].Rows[i][1] == "值低較優")
+                else if ((string)dsSchema.Tables[MainForm.essSchemaTableName].Rows[i][1] == "值低較優")
                 {
                     ParamTypeList.Add(2);
                 }

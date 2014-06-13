@@ -20,11 +20,13 @@ namespace ESS
         public FormDataEdit fDataEdit;
         public FormSchemaEdit fSchemaEdit;
         public string essDataPath = @"essData.xml";
-        public string essSchemaPath = @"essSchema.xml";
+        public string essSchemaPath = @"essData.xml";
         //public static string StaticEssDataPath = @"essData.xml";
         //public static string StaticEssSchemaPath = @"essSchema.xml";
-        public string essDataTableName = @"Motorcycle";
-        public string essSchemaTableName = "MotorcycleSchema";
+        //public string essDataTableName = "Motorcycle";
+        //public string essSchemaTableName = "MotorcycleSchema";
+        internal static string essDataTableName = "Motorcycle";
+        internal static string essSchemaTableName = "MotorcycleSchema";
         public MainForm()
         {
             InitializeComponent();
@@ -35,6 +37,7 @@ namespace ESS
             //this.Size = new Size(FormWidth, FormHeight);
             this.WindowState = FormWindowState.Maximized;
             this.lastForm = this;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
 
             //this.essData.Reset();
             //this.essData.ReadXmlSchema(@"d:\essDataOpt.xml");
@@ -82,13 +85,14 @@ namespace ESS
         //機車資料編輯
         private void button3_Click(object sender, EventArgs e)
         {
+            //fDataEdit.Init();
             ChangeForm(fDataEdit);
-            fDataEdit.Init();
         }
 
         //機車參數編輯
         private void button2_Click(object sender, EventArgs e)
         {
+            //fSchemaEdit.Init();
             ChangeForm(fSchemaEdit);
         }
 
@@ -98,11 +102,27 @@ namespace ESS
             ChangeForm(fWeights);
         }
 
+
+        /// <summary>
+        /// 更改機車資料之路徑
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void button4_Click(object sender, EventArgs e)
+        {
+            changeEssDataPath();
+        }
+
+        /// <summary>
+        /// 修改機車資料之路徑,若成功回傳true,失敗則回傳FALSE
+        /// </summary>
+        /// <returns></returns>
+        internal bool changeEssDataPath()
         {
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.DefaultExt = ".xml";
-            ofd.InitialDirectory = Application.StartupPath;
+            ofd.InitialDirectory = essDataPath;
+            ofd.FileName = essDataPath;
             if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 DataSet dsTest;
@@ -110,21 +130,65 @@ namespace ESS
                 {
                     dsTest = new DataSet();
                     dsTest.ReadXml(ofd.FileName);
+
+                    //機車資料驗證
+
+                    //成功修改檔案
                     textBox1.Text = ofd.FileName;
+                    essDataPath = ofd.FileName;
+                    essSchemaPath = ofd.FileName;
                 }
-                catch (Exception) 
+                catch (Exception)
                 {
-                    MessageBox.Show("不是機車資料檔或檔案損毀","讀取失敗",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                    MessageBox.Show("不是機車資料檔或檔案損毀", "讀取失敗", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     //throw;
+                    return false;
                 }
                 finally
                 {
 
                 }
             }
-            //textBox1.Text = dlResult;
+            return true;
         }
 
+        /// <summary>
+        /// 新建機車資料之路徑,若成功回傳true,失敗則回傳FALSE
+        /// </summary>
+        /// <returns></returns>
+        internal bool NewEssDataPath()
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.DefaultExt = ".xml";
+            sfd.InitialDirectory = essDataPath;
+            sfd.FileName = essDataPath;
+            if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                try
+                {
+                    //成功修改檔案
+                    textBox1.Text = sfd.FileName;
+                    essDataPath = sfd.FileName;
+                    essSchemaPath = sfd.FileName;
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("檔案建立失敗", "另存新檔失敗", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    //throw;
+                    return false;
+                }
+                finally
+                {
+
+                }
+            }
+            return true;
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
 
     }
 }
