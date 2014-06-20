@@ -105,8 +105,6 @@ namespace ESS
                 ds.WriteXml(mainForm.essSchemaPath);
                 dsData.WriteXml(mainForm.essDataPath);
             }
-
-
         }
 
         /// <summary>
@@ -179,15 +177,20 @@ namespace ESS
             //    }
             //}
 
-
             //並移除參數
             foreach (DataGridViewRow item in waitDeleteDgvRow)
             {
-                dataGridView1.Rows.Remove(item);
+                if (item.DataGridView == dataGridView1)
+                {
+                    dataGridView1.Rows.Remove(item);
+                }
             }
             foreach (DataColumn item in waitDeleteDataRow)
             {
-                ds.Tables[MainForm.essDataTableName].Columns.Remove(item);
+                if (item.Table == ds.Tables[MainForm.essDataTableName])
+                {
+                    ds.Tables[MainForm.essDataTableName].Columns.Remove(item);
+                }
             }
 
         }

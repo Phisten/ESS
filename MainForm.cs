@@ -21,6 +21,7 @@ namespace ESS
         public FormSchemaEdit fSchemaEdit;
         public string essDataPath = @"essData.xml";
         public string essSchemaPath = @"essData.xml";
+        public string essWeightsPath = @"essWeights.xml";
         //public static string StaticEssDataPath = @"essData.xml";
         //public static string StaticEssSchemaPath = @"essSchema.xml";
         //public string essDataTableName = "Motorcycle";
@@ -149,6 +150,10 @@ namespace ESS
 
                 }
             }
+            else
+            {
+                return false;
+            }
             return true;
         }
 
@@ -181,6 +186,86 @@ namespace ESS
                 {
 
                 }
+            }
+            else
+            {
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 新建評分者資料之路徑,若成功回傳true,失敗則回傳FALSE
+        /// </summary>
+        /// <returns></returns>
+        internal bool NewEssWeightsPath()
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.DefaultExt = ".xml";
+            sfd.InitialDirectory = essWeightsPath;
+            sfd.FileName = essWeightsPath;
+            if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                try
+                {
+                    //成功修改檔案
+                    essWeightsPath = sfd.FileName;
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("檔案建立失敗", "另存新檔失敗", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    //throw;
+                    return false;
+                }
+                finally
+                {
+
+                }
+            }
+            else
+            {
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 修改評價者資料之路徑,若成功回傳true,失敗則回傳FALSE
+        /// </summary>
+        /// <returns></returns>
+        internal bool changeEssWeightsPath()
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.DefaultExt = ".xml";
+            ofd.InitialDirectory = essWeightsPath;
+            ofd.FileName = essWeightsPath;
+            if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                DataSet dsTest;
+                try
+                {
+                    dsTest = new DataSet();
+                    dsTest.ReadXml(ofd.FileName);
+
+                    //TODO: 評價者資料驗證
+
+                    //成功修改檔案
+                    essWeightsPath = ofd.FileName;
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("不是機車資料檔或檔案損毀", "讀取失敗", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    //throw;
+                    return false;
+                }
+                finally
+                {
+
+                }
+            }
+            else
+            {
+                return false;
             }
             return true;
         }

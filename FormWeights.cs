@@ -20,6 +20,7 @@ namespace ESS
 
         DataSet dsSchema = new DataSet();
         DataSet dsData = new DataSet();
+        DataSet dsWeights = new DataSet();
 
 
         internal override void Init()
@@ -29,6 +30,8 @@ namespace ESS
             dsSchema.ReadXml(mainForm.essSchemaPath);
             dsData.ReadXmlSchema(mainForm.essDataPath);
 
+            DataTable dt = new DataTable();
+            dt = dsData.Tables[MainForm.essDataTableName];
             dataGridView1.Columns.Clear();
 
             DataTable scoreCalculation = new DataTable();
@@ -54,10 +57,10 @@ namespace ESS
 
             dataGridView1.DataSource = dsData;
             dataGridView1.DataMember = MainForm.essDataTableName;
-
+            
 
             //排除非計算項
-            for (int i = dsData.Tables[MainForm.essDataTableName].Columns.Count - 1; i >= 0; i--)
+            for (int i = dsData.Tables[MainForm.essDataTableName].Columns.Count - 1; i >= 1; i--)
             {
                 if ((string)dsSchema.Tables[MainForm.essSchemaTableName].Rows[i][1] == "值高較優")
                 {
@@ -66,6 +69,7 @@ namespace ESS
                     curComboCol.HeaderText = dsData.Tables[MainForm.essDataTableName].Columns[i].ColumnName;
                     dataGridView1.Columns.Insert(i, curComboCol);
                     dataGridView1.Columns.RemoveAt(i + 1);
+                    
                 }
                 else if ((string)dsSchema.Tables[MainForm.essSchemaTableName].Rows[i][1] == "值低較優")
                 {
@@ -82,8 +86,6 @@ namespace ESS
             }
 
 
-
-
             dataGridView1.DataSource = null;
 
             if (dataGridView1.Columns.Count > 0 && dataGridView1.Columns[0].HeaderText != "評價者")
@@ -95,7 +97,6 @@ namespace ESS
             }
 
             //新增預設資料
-            int DefDataCount = 5;
             string[] dataName = new string[] { "戴子芸", "程威誠", "林哲瑋", "林玠霈", "陳雅婷" };
             double[][] dataVal = new double[][] {
                 new double[]{ 0.875d, 0.875d, 0.625d, 0.375d, 0.375d, 0.375d, 0.375d, 0.5d, 0.125d, 0.5d },
@@ -103,8 +104,19 @@ namespace ESS
                 new double[]{ 0.875d, 0.375d, 0.625d, 0.625d, 0.375d, 0.625d, 0.5d, 0.5d, 0.375d, 0.375d },
                 new double[]{ 1d, 0.5d, 0.875d, 0.375d, 0.375d, 0.125d, 0.125d, 0.875d, 0d, 0d },
                 new double[] { 1d, 0.375d, 0.875d, 0.375d, 0d, 0.5d, 0.375d, 0.875d, 0d, 0.5d}};
+            int DefDataCount = 5;
+
             for (int j = 0, length = DefDataCount; j < length; j++)
             {
+                dt.Rows.Add((object)dataName[j]);
+                for (int i = 1, Columnslength = dt.Columns.Count; i < Columnslength; i++)
+                {
+                    if (dataVal[j].Length + 1 > i)
+                        dt.Rows[j][i] = dataVal[j][i - 1];
+                    else
+                        dt.Rows[j][i] = 0.375d;
+                }
+
                 dataGridView1.Rows.Insert(j, new DataGridViewRow());
                 dataGridView1.Rows[j].Cells[0].Value = dataName[j];
                 for (int i = 1, Columnslength = dataGridView1.Columns.Count; i < Columnslength; i++)
@@ -115,6 +127,13 @@ namespace ESS
                         dataGridView1.Rows[j].Cells[i].Value = 0.375d;
                 }
             }
+
+            //新建DATASET
+            //dt.Clear();
+            dt.Columns[0].ColumnName = "評價者";
+            
+
+
 
             mainForm.DataGridViewReSize(ref dataGridView1);
             dataGridView1.EditMode = DataGridViewEditMode.EditOnEnter; //快速編輯
@@ -158,13 +177,116 @@ namespace ESS
         /// <param name="e"></param>
         private void button2_Click(object sender, EventArgs e)
         {
-            if (dataGridView1.SelectedRows.Count > 0)
+            //this.hasEdited = true;
+            List<DataGridViewRow> waitDeleteDgvRow = new List<DataGridViewRow>();
+            List<DataColumn> waitDeleteDataRow = new List<DataColumn>();
+            foreach (DataGridViewCell item in dataGridView1.SelectedCells)
             {
-                foreach (DataGridViewRow item in dataGridView1.SelectedRows)
+                waitDeleteDgvRow.Add(item.OwningRow);
+                //waitDeleteDataRow.Add(dsData.Tables[MainForm.essDataTableName].Columns[item.OwningRow.Cells[0].Value as string]);
+            }
+
+            //移除參數
+            foreach (DataGridViewRow item in waitDeleteDgvRow)
+            {
+                if (item.DataGridView == dataGridView1)
                 {
                     dataGridView1.Rows.Remove(item);
                 }
             }
+            //foreach (DataColumn item in waitDeleteDataRow)
+            //{
+            //if (item.Table == dsData.Tables[MainForm.essDataTableName])
+            //{
+            //    dsData.Tables[MainForm.essDataTableName].Columns.Remove(item);
+            //}
+            //}
+
+
+
+            //if (dataGridView1.SelectedRows.Count > 0)
+            //{
+            //    foreach (DataGridViewRow item in dataGridView1.SelectedRows)
+            //    {
+            //        dataGridView1.Rows.Remove(item);
+            //    }
+            //}
+        }
+
+        /// <summary>
+        /// 評分者資訊存檔
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button3_Click(object sender, EventArgs e)
+        {
+            //確認檔名
+            if (mainForm.NewEssWeightsPath() == false)
+                return;
+
+            dsData.WriteXml(mainForm.essWeightsPath);
+        }
+
+
+
+
+        /// <summary>
+        /// 載入評分者資訊
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button4_Click(object sender, EventArgs e)
+        {
+            //確認檔名
+            if (mainForm.changeEssWeightsPath() == false)
+                return;
+
+            dataGridView1.DataSource = null;
+            dataGridView1.Rows.Clear();
+            dataGridView1.Columns.Clear();
+
+            dsData = new DataSet();
+            dsData.ReadXml(mainForm.essWeightsPath);
+
+            dataGridView1.DataSource = dsData;
+            dataGridView1.DataMember = MainForm.essDataTableName;
+
+
+            DataTable scoreCalculation = new DataTable();
+            scoreCalculation.Columns.Add("weightsName", Type.GetType("System.String"));
+            scoreCalculation.Columns.Add("weightsValue", Type.GetType("System.Double"));
+            scoreCalculation.Rows.Add("絕對重要", 1d);
+            scoreCalculation.Rows.Add("非常重要", 0.875d);
+            scoreCalculation.Rows.Add("很重要", 0.625d);
+            scoreCalculation.Rows.Add("重要", 0.5d);
+            scoreCalculation.Rows.Add("普通重要", 0.375d);
+            scoreCalculation.Rows.Add("略微重要", 0.125d);
+            scoreCalculation.Rows.Add("不重要", 0d);
+
+            DataGridViewComboBoxColumn comboboxColumn = new DataGridViewComboBoxColumn();
+            string headerName = "aa";
+            comboboxColumn = CreateComboBoxColumn(headerName);
+            comboboxColumn.DataSource = scoreCalculation;
+            comboboxColumn.DisplayMember = "weightsName";
+            comboboxColumn.ValueMember = "weightsValue";
+            comboboxColumn.HeaderText = headerName;
+
+
+            //修改為COMBOBOX
+            for (int i = dsData.Tables[MainForm.essDataTableName].Columns.Count - 1; i >= 1; i--)
+            {
+                DataGridViewComboBoxColumn curComboCol = comboboxColumn.Clone() as DataGridViewComboBoxColumn;
+                curComboCol.HeaderText = dsData.Tables[MainForm.essDataTableName].Columns[i].ColumnName;
+                dataGridView1.Columns.Insert(i, curComboCol);
+                dataGridView1.Columns[i].ValueType = Type.GetType("double");
+                for (int j = 0, length = dataGridView1.Rows.Count - 1; j < length; j++)
+                {
+                    double dTemp = double.Parse(dataGridView1.Rows[j].Cells[i + 1].Value.ToString());
+                    dataGridView1.Rows[j].Cells[i].Value = dTemp;
+                }
+                dataGridView1.Columns.RemoveAt(i + 1);
+            }
+
         }
 
 
