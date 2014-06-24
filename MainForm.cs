@@ -28,6 +28,8 @@ namespace ESS
         //public string essSchemaTableName = "MotorcycleSchema";
         internal static string essDataTableName = "Motorcycle";
         internal static string essSchemaTableName = "MotorcycleSchema";
+
+
         public MainForm()
         {
             InitializeComponent();

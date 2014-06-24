@@ -84,7 +84,7 @@ namespace ESS
             dsTempData.Clear();
 
             //複製評價者名稱
-            for (int i = 0 ,length = srcDgv.Rows.Count - 1; i < length; i++)
+            for (int i = 0 ,length = srcDgv.Rows.Count; i < length; i++)
             {
                 dataGridView1.Rows.Insert(i, new DataGridViewRow());
                 for (int j = 0, colLen = srcDgv.ColumnCount; j < colLen; j++)
@@ -96,19 +96,25 @@ namespace ESS
             //輸出平均權重
             DataGridViewRow avgRow = new DataGridViewRow();
             dataGridView1.Rows.Add(avgRow);
-            int dataCount = srcDgv.RowCount - 1;
+            int dataCount = srcDgv.RowCount;
             dataGridView1.Rows[dataCount].Cells[0].Value = "平均權重";
             for (int j = 1, colLen = srcDgv.ColumnCount; j < colLen; j++)
             {
                 double curVal = 0d;
                 for (int i = 0; i < dataCount; i++)
                 {
-                    curVal += (double)dataGridView1.Rows[i].Cells[j].Value;
+                    var curValue = dataGridView1.Rows[i].Cells[j].Value;
+                    if (curValue == null)
+                    {
+                        curValue = (double)ESS.Weights.普通重要 / 1000d;
+                    }
+                    
+                    curVal += (double)curValue;
                 }
-                dataGridView1.Rows[dataCount].Cells[j].Value = curVal / (double)dataCount;
+                dataGridView1.Rows[dataCount].Cells[j].Value = Math.Round(curVal / (double)dataCount, 3);
             }
 
-
+            //尚未檢查數值正確性
             //輸出正規化權重
             List<double> NormalWeights = new List<double>();
 
@@ -116,18 +122,29 @@ namespace ESS
             dataGridView1.Rows.Add(norRow);
             dataCount = srcDgv.RowCount;
             int valCount = srcDgv.ColumnCount - 1;
-            dataGridView1.Rows[dataCount].Cells[0].Value = "正規化權重";
+            dataGridView1.Rows[dataCount + 1].Cells[0].Value = "正規化權重";
 
             double sumVal = 0d;
             for (int j = 1, colLen = srcDgv.ColumnCount; j < colLen; j++)
             {
-                sumVal += (double)dataGridView1.Rows[dataCount - 1].Cells[j].Value;
+                var dataTmp = dataGridView1.Rows[dataCount].Cells[j].Value;
+                if (dataTmp == null)
+                {
+                    dataTmp = (double)ESS.Weights.普通重要 / 1000d;
+                }
+                sumVal += (double)dataTmp;
             }
             for (int j = 1, colLen = srcDgv.ColumnCount; j < colLen; j++)
             {
-                double curVal = Math.Round((double)dataGridView1.Rows[dataCount - 1].Cells[j].Value / sumVal, 3);
+                var curValue = dataGridView1.Rows[dataCount].Cells[j].Value;
+                if (curValue == null)
+                {
+                    curValue = (double)ESS.Weights.普通重要 / 1000d;
+                }
+                double curVal = Math.Round((double)curValue / sumVal, 3);
+//                double curVal = Math.Round((double)dataGridView1.Rows[dataCount - 1].Cells[j].Value / sumVal, 3);
                 NormalWeights.Add(curVal);
-                dataGridView1.Rows[dataCount].Cells[j].Value = curVal;
+                dataGridView1.Rows[dataCount + 1].Cells[j].Value = curVal;
             }
 
             return NormalWeights.Select<double, Weights>(x => (Weights)((int)(x * 1000))).ToList<Weights>();

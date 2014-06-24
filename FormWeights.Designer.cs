@@ -33,6 +33,7 @@
             this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
+            this.button5 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -44,6 +45,13 @@
             this.dataGridView1.RowTemplate.Height = 24;
             this.dataGridView1.Size = new System.Drawing.Size(948, 312);
             this.dataGridView1.TabIndex = 0;
+            this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
+            this.dataGridView1.CellLeave += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellLeave);
+            this.dataGridView1.CellStateChanged += new System.Windows.Forms.DataGridViewCellStateChangedEventHandler(this.dataGridView1_CellStateChanged);
+            this.dataGridView1.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellValueChanged);
+            this.dataGridView1.RowsAdded += new System.Windows.Forms.DataGridViewRowsAddedEventHandler(this.dataGridView1_RowsAdded);
+            this.dataGridView1.UserAddedRow += new System.Windows.Forms.DataGridViewRowEventHandler(this.dataGridView1_UserAddedRow);
+            this.dataGridView1.UserDeletedRow += new System.Windows.Forms.DataGridViewRowEventHandler(this.dataGridView1_UserDeletedRow);
             // 
             // button1
             // 
@@ -57,9 +65,9 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(256, 78);
+            this.button2.Location = new System.Drawing.Point(406, 78);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(168, 63);
+            this.button2.Size = new System.Drawing.Size(144, 63);
             this.button2.TabIndex = 2;
             this.button2.Text = "刪除目前選擇評分者";
             this.button2.UseVisualStyleBackColor = true;
@@ -67,7 +75,7 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(558, 78);
+            this.button3.Location = new System.Drawing.Point(642, 78);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(168, 63);
             this.button3.TabIndex = 3;
@@ -77,7 +85,7 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(732, 78);
+            this.button4.Location = new System.Drawing.Point(816, 78);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(168, 63);
             this.button4.TabIndex = 4;
@@ -85,11 +93,22 @@
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
+            // button5
+            // 
+            this.button5.Location = new System.Drawing.Point(256, 78);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(144, 63);
+            this.button5.TabIndex = 5;
+            this.button5.Text = "新增評分者";
+            this.button5.UseVisualStyleBackColor = true;
+            this.button5.Click += new System.EventHandler(this.button5_Click);
+            // 
             // FormWeights
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(972, 803);
+            this.Controls.Add(this.button5);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
@@ -110,5 +129,6 @@
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Button button5;
     }
 }

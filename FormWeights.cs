@@ -136,6 +136,7 @@ namespace ESS
 
 
             mainForm.DataGridViewReSize(ref dataGridView1);
+            dataGridView1.AllowUserToAddRows = false;
             dataGridView1.EditMode = DataGridViewEditMode.EditOnEnter; //快速編輯
         }
 
@@ -271,6 +272,13 @@ namespace ESS
             comboboxColumn.ValueMember = "weightsValue";
             comboboxColumn.HeaderText = headerName;
 
+            //若無資料則直接跳出
+            if (dsData.Tables[MainForm.essDataTableName].Rows.Count == 0)
+            {
+                Console.Write("essWeights 檔案內資料為空!");
+                return;
+            }
+
 
             //修改為COMBOBOX
             for (int i = dsData.Tables[MainForm.essDataTableName].Columns.Count - 1; i >= 1; i--)
@@ -281,12 +289,70 @@ namespace ESS
                 dataGridView1.Columns[i].ValueType = Type.GetType("double");
                 for (int j = 0, length = dataGridView1.Rows.Count - 1; j < length; j++)
                 {
-                    double dTemp = double.Parse(dataGridView1.Rows[j].Cells[i + 1].Value.ToString());
+                    var readTmp = dataGridView1.Rows[j].Cells[i + 1].Value;
+                    if (readTmp == null || readTmp.ToString() == "")
+                    {
+                        readTmp = (double)ESS.Weights.普通重要 / 1000d;
+                    }
+                    else
+                    {
+                        readTmp = double.Parse(readTmp.ToString());
+                    }
+                    double dTemp = (double)readTmp;
                     dataGridView1.Rows[j].Cells[i].Value = dTemp;
                 }
                 dataGridView1.Columns.RemoveAt(i + 1);
             }
 
+        }
+
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void dataGridView1_CellStateChanged(object sender, DataGridViewCellStateChangedEventArgs e)
+        {
+
+        }
+
+        private void dataGridView1_CellLeave(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void dataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+
+            DataGridView s = sender as DataGridView;
+            DataTable dt = dsData.Tables[MainForm.essDataTableName];
+
+            
+            dt.Rows[e.RowIndex][e.ColumnIndex] = s.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+        }
+
+        private void dataGridView1_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
+        {
+            
+
+        }
+
+        private void dataGridView1_UserAddedRow(object sender, DataGridViewRowEventArgs e)
+        {
+
+        }
+
+        private void dataGridView1_UserDeletedRow(object sender, DataGridViewRowEventArgs e)
+        {
+            DataTable dt = dsData.Tables[MainForm.essDataTableName];
+            dt.Rows.RemoveAt(e.Row.Index);
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            DataTable dt = dsData.Tables[MainForm.essDataTableName];
+            dt.Rows.Add();
+            dataGridView1.Rows.Add();
         }
 
 
